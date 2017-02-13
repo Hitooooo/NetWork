@@ -1,5 +1,8 @@
 package com.hito.okplus;
 
+import com.hito.okplus.builder.GetRequestBuilder;
+import com.hito.okplus.builder.PostRequestBuilder;
+
 import okhttp3.OkHttpClient;
 
 /**
@@ -8,13 +11,16 @@ import okhttp3.OkHttpClient;
  * 1，维护单例的OkHttpClient
  * 2，可设置自定义的OkHttpClient
  * 3，通过继承RequestBuilder，定义get与post方法
- *
+ * <p>
  * Created by dream on 2017/02/08.
  */
 
 public class OkHttpProxy {
     private static OkHttpClient mOkHttpClient;
 
+    /**
+     * 初始化
+     */
     private static OkHttpClient init() {
         synchronized (OkHttpProxy.class) {
             if (mOkHttpClient == null) {
@@ -25,11 +31,27 @@ public class OkHttpProxy {
         }
     }
 
+    /**
+     * 获取当前设置的OkHttpClient，如果没有设置就重新new一个
+     */
     public static OkHttpClient getHttpClient() {
         return mOkHttpClient == null ? init() : mOkHttpClient;
     }
 
+    /**
+     * 设置新的OkHttpClient
+     *
+     * @param okHttpClient 自定义OkHttpClient
+     */
     public static void setHttpClient(OkHttpClient okHttpClient) {
         OkHttpProxy.mOkHttpClient = okHttpClient;
+    }
+
+    public static GetRequestBuilder get() {
+        return new GetRequestBuilder();
+    }
+
+    public static PostRequestBuilder post() {
+        return new PostRequestBuilder();
     }
 }

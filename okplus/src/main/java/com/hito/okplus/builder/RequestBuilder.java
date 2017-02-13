@@ -10,4 +10,5 @@ package com.hito.okplus.builder;
  */
 
 public abstract class RequestBuilder {
+
 }

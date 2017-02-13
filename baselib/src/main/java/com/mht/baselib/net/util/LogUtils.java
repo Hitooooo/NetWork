@@ -3,9 +3,10 @@ import android.util.Log;
 
 public class LogUtils {
 
-    private static final String TAG = "LOGUTIL";
-    private static boolean LOG_ENABLE = true;
-    private static boolean DETAIL_ENABLE = true;
+    private static final String TAG        = "LOGUTIL";
+    private static final int LOG_MAXLENGTH = 2000;
+    private static boolean LOG_ENABLE      = true;
+    private static boolean DETAIL_ENABLE   = true;
 
     private static String buildMsg(String msg) {
         StringBuilder buffer = new StringBuilder();
@@ -95,6 +96,19 @@ public class LogUtils {
     public static void i(String msg) {
         if (LOG_ENABLE) {
             Log.i(TAG, buildMsg(msg));
+            int strLength = msg.length();
+            int start = 0;
+            int end = LOG_MAXLENGTH;
+            for (int i = 0; i < 100; i++) {
+                if (strLength > end) {
+                    Log.i(TAG, msg.substring(start, end));
+                    start = end;
+                    end = end + LOG_MAXLENGTH;
+                } else {
+                    Log.i(TAG, msg.substring(start, strLength));
+                    break;
+                }
+            }
         }
     }
 

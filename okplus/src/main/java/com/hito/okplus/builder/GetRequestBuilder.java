@@ -22,18 +22,6 @@ import okhttp3.Response;
  */
 
 public class GetRequestBuilder extends RequestBuilder {
-    private Request.Builder     mBuilder;
-    private String              mUrl;
-    private Map<String, String> mParams;
-    private Object              mTag;
-    //    private  String          method;
-    //    private  Headers.Builder headers;
-    //    private  RequestBody     body;
-    //    private  Object          tag;
-
-    public GetRequestBuilder() {
-        mBuilder = new Request.Builder();
-    }
 
     /**
      * 设置接口地址
@@ -104,21 +92,8 @@ public class GetRequestBuilder extends RequestBuilder {
             builder.tag(mTag);
         }
         Request request = builder.build();
-        Response response = OkHttpProxy.getHttpClient().newCall(request).execute();
-        return response;
+        return OkHttpProxy.getHttpClient().newCall(request).execute();
     }
 
-    // 拼接Url
-    private String appendParams(String url, Map<String, String> params) {
-        if (params == null || params.size() < 1) {
-            return url;
-        } else {
-            StringBuilder sb = new StringBuilder(url).append("?");
-            for (Map.Entry<String, String> stringStringEntry : params.entrySet()) {
-                sb.append(stringStringEntry.getKey()).append("=").append(stringStringEntry
-                        .getValue()).append("&");
-            }
-            return sb.toString();
-        }
-    }
+
 }

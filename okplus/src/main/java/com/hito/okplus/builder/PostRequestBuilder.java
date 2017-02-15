@@ -4,23 +4,24 @@ import android.text.TextUtils;
 
 import com.hito.okplus.OkHttpProxy;
 
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
 import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * Created by dream on 2017/02/13.
  * 进行Post请求
  */
 
-public class PostRequestBuilder {
-    private String              mUrl; // 接口
-    private Object              mTag; // tag
-    private Map<String, String> mParams;
+public class PostRequestBuilder extends RequestBuilder {
+    private Map<String, String> mHeaders;
 
     public PostRequestBuilder url(String url) {
         this.mUrl = url;
@@ -45,7 +46,22 @@ public class PostRequestBuilder {
         return this;
     }
 
-    public void enqueue(Callback callback) {
+    public PostRequestBuilder headers(Map<String, String> headers) {
+        this.mHeaders = headers;
+        return this;
+    }
+
+    public PostRequestBuilder addHeader(String key, String values) {
+        if (mHeaders == null) {
+            mHeaders = new IdentityHashMap<>();
+        }
+        mHeaders.put(key, values);
+        return this;
+    }
+
+    // 异步请求
+    @Override
+    public Call enqueue(Callback callback) {
         if (TextUtils.isEmpty(mUrl)) {
             throw new IllegalStateException("You must point a url");
         }
@@ -55,16 +71,30 @@ public class PostRequestBuilder {
         }
         FormBody.Builder formBodyBuilder = new FormBody.Builder();
         appendParams(formBodyBuilder, mParams);
+        appendHeaders(builder,mHeaders);
         builder.post(formBodyBuilder.build());
         Call call = OkHttpProxy.getHttpClient().newCall(builder.build());
         call.enqueue(callback);
+        return  call;
     }
 
-    public void appendParams(FormBody.Builder builder, Map<String, String> params) {
-        if (params != null && params.size() > 0) {
-            for (String s : params.keySet()) {
-                builder.add(s, params.get(s));
-            }
+    // 同步请求
+    @Override
+    public Response execute() throws IOException {
+        if (TextUtils.isEmpty(mUrl)) {
+            throw new IllegalStateException("You must point a url");
         }
+        Request.Builder builder = new Request.Builder().url(mUrl);
+        if (mTag != null) {
+            builder.tag(mTag);
+        }
+        FormBody.Builder formBodyBuilder = new FormBody.Builder();
+        appendParams(formBodyBuilder, mParams);
+        appendHeaders(builder,mHeaders);
+        builder.post(formBodyBuilder.build());
+        Call call = OkHttpProxy.getHttpClient().newCall(builder.build());
+        return call.execute();
     }
+
+
 }

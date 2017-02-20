@@ -76,7 +76,6 @@ public class GetRequestBuilder extends RequestBuilder {
         Request request = builder.build();
         Call call = OkHttpProxy.getHttpClient().newCall(request);
         call.enqueue(callback);
-        // TODO: 2017/02/13 为什么要返回call，设置自定义CallBack拦截返回值，对象化处理
         return call;
     }
 

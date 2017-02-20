@@ -23,5 +23,5 @@
         android:id="@+id/btn_post_plus"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="GET(OkPlus)"/>
+        android:text="Post(OkPlus)"/>
 </LinearLayout>

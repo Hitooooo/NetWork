@@ -6,12 +6,19 @@ import android.view.View;
 import android.widget.Button;
 
 import com.hito.okplus.OkHttpProxy;
+import com.hito.okplus.callback.OkCallback;
+import com.hito.okplus.model.BaseBean;
+import com.hito.okplus.parser.OkJsonParser;
+import com.hito.okplus.parser.ParameterizedTypeImpl;
 import com.mht.baselib.net.Net;
 import com.mht.baselib.net.response.RawResponseHandler;
 import com.mht.baselib.net.util.LogUtils;
+import com.mht.network.model.ResultsBean;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
@@ -38,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    @OnClick({R.id.btn_hello, R.id.btn_get_plus,R.id.btn_post_plus})
+    @OnClick({R.id.btn_hello, R.id.btn_get_plus, R.id.btn_post_plus})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btn_hello:
@@ -61,8 +68,7 @@ public class MainActivity extends AppCompatActivity {
         params.put("type", "瞎推荐");
         params.put("debug", "true");
 
-        OkHttpProxy.post().url("https://gank.io/api/add2gank")
-                            .setParams(params).enqueue(new Callback() {
+        OkHttpProxy.post().url("https://gank.io/api/add2gank").setParams(params).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 LogUtils.i(e.toString() + "你失败了..");
@@ -78,15 +84,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void getInOkPlus() {
-        OkHttpProxy.get().url("http://gank.io/api/data/Android/10/1").tag(this).enqueue(new Callback() {
+        Type listType = new ParameterizedTypeImpl(List.class, new Class[]{ResultsBean.class});
+        // 根据List<T>生成完整的Result<List<T>>
+        Type type = new ParameterizedTypeImpl(BaseBean.class, new Type[]{listType});
+
+        OkHttpProxy.get().url("http://gank.io/api/data/Android/10/1").enqueue(new OkCallback<List<ResultsBean>>(new OkJsonParser(type)) {
+
             @Override
-            public void onFailure(Call call, IOException e) {
-                LogUtils.i(e.toString() + "你失败了..");
+            public void onOk(int code, com.hito.okplus.model.BaseBean<List<ResultsBean>> Q) {
+                System.out.println(code+"我要撸了");
+                for (ResultsBean resultsBean : Q.getResults()) {
+                    System.out.println(resultsBean.getDesc());
+                }
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                LogUtils.i(response.body().string() + "你成功啦");
+            public void onNo(Call call, Exception e) {
+                System.out.println(e.toString()+"gun!");
             }
         });
     }
